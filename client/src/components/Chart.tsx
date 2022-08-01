@@ -11,13 +11,10 @@ import {
 
 //---- css ----
 const ChartWrapper = styled.div`
-  position: relative;
-  display: grid;
-  max-width: 500px;
-  margin: 0 auto;
-  padding: 0 20px;
-  gap: 20px;
+  width: 100%;
+  display: flex;
   text-align: center;
+  flex-direction: column;
   justify-content: center;
 `;
 
@@ -102,7 +99,95 @@ function Chart() {
             standalone={false}
           ></VictoryLegend>
         </svg> */}
-        <Svg viewBox="0 0 500 300">
+        <Svg height={"30vh"} viewBox="0 0 450 300">
+          <VictoryLabel
+            textAnchor={"middle"}
+            style={{ fontSize: 25 }}
+            x={150}
+            y={150}
+            text={"496 명"}
+          />
+          <VictoryPie
+            origin={{ x: 150, y: 150 }}
+            standalone={false}
+            animate={{ easing: "exp", duration: 500 }}
+            radius={150}
+            innerRadius={65}
+            colorScale={["#9749B6", "#C1ADD1", "#EEA3BF"]}
+            padAngle={1}
+            data={graphicData}
+            labelComponent={
+              <VictoryTooltip
+                center={{ x: 150, y: 150 }}
+                pointerWidth={0}
+                cornerRadius={50}
+                pointerLength={0}
+                flyoutWidth={90}
+                flyoutHeight={90}
+                flyoutStyle={{ fill: "white", stroke: "none" }}
+                style={{ fontSize: 30 }}
+              />
+            }
+          />
+
+          <VictoryLegend
+            x={330}
+            y={80}
+            title="범례"
+            centerTitle
+            orientation="vertical"
+            gutter={{ left: 5, right: 50 }}
+            borderPadding={{ top: 5, bottom: 5 }}
+            style={{
+              border: { stroke: "#878787" },
+              title: { fontSize: 20 },
+              labels: { fontSize: 15 },
+            }}
+            data={legend}
+            standalone={false}
+          />
+        </Svg>
+      </>
+
+      <DetailedStaticsTitle>남녀 전체 응답률</DetailedStaticsTitle>
+
+      <>
+        {/* <svg height={300} viewBox=" 0 0 500 300">
+          <VictoryLabel
+            textAnchor={"middle"}
+            x={150}
+            y={150}
+            text={"123명"}
+          ></VictoryLabel>
+          <VictoryPie
+            radius={100}
+            standalone={false}
+            origin={{ x: 150, y: 150 }}
+            innerRadius={50}
+            labelComponent={
+              <VictoryTooltip
+                center={{ x: 150, y: 150 }}
+                pointerWidth={0}
+                cornerRadius={50}
+                pointerLength={0}
+                flyoutWidth={90}
+                flyoutHeight={90}
+                flyoutStyle={{ fill: "white", stroke: "none" }}
+                style={{ fontSize: 20 }}
+              />
+            }
+          ></VictoryPie>
+          <VictoryLegend
+            x={300}
+            y={80}
+            title="Legend"
+            gutter={30}
+            style={{ border: { stroke: "black" } }}
+            centerTitle
+            standalone={false}
+          ></VictoryLegend>
+        </svg> */}
+        <Svg height={"30vh"} viewBox="0 0 450 300">
           <VictoryLabel
             textAnchor={"middle"}
             style={{ fontSize: 25 }}
@@ -128,13 +213,36 @@ function Chart() {
                 flyoutWidth={90}
                 flyoutHeight={90}
                 flyoutStyle={{ fill: "white", stroke: "none" }}
-                style={{ fontSize: 20 }}
+                style={{ fontSize: 30 }}
+              />
+            }
+          />
+          <VictoryPie
+            origin={{ x: 150, y: 150 }}
+            standalone={false}
+            data={graphicData}
+            radius={150}
+            innerRadius={110}
+            padAngle={1}
+            colorScale={["tomato", "yellow", "green"]}
+            startAngle={20}
+            endAngle={380}
+            labelComponent={
+              <VictoryTooltip
+                center={{ x: 150, y: 150 }}
+                pointerWidth={0}
+                cornerRadius={50}
+                pointerLength={0}
+                flyoutWidth={90}
+                flyoutHeight={90}
+                flyoutStyle={{ fill: "white", stroke: "none" }}
+                style={{ fontSize: 30 }}
               />
             }
           />
 
           <VictoryLegend
-            x={300}
+            x={330}
             y={80}
             title="범례"
             centerTitle
@@ -143,17 +251,15 @@ function Chart() {
             borderPadding={{ top: 5, bottom: 5 }}
             style={{
               border: { stroke: "#878787" },
-              title: { fontSize: 13 },
-              labels: { fontSize: 10 },
+              title: { fontSize: 20 },
+              labels: { fontSize: 15 },
             }}
             data={legend}
             standalone={false}
           />
         </Svg>
       </>
-
-      <DetailedStaticsTitle>남녀 전체 응답률</DetailedStaticsTitle>
-      <VictoryChart width={400} height={200}>
+      {/* <VictoryChart width={400} height={200}>
         <VictoryAxis
           style={{
             axis: { stroke: "transparent" }, // x축
@@ -234,7 +340,7 @@ function Chart() {
           }}
           data={legend}
         />
-      </VictoryChart>
+      </VictoryChart> */}
     </ChartWrapper>
   );
 }
