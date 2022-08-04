@@ -1,6 +1,7 @@
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
+import { Axis } from "victory";
 import randomPick from "../etc/randomPick";
 
 import ColorBar from "./ColorBar";
@@ -181,13 +182,26 @@ interface mapData {
   max: number;
   data: { [regionName: string]: regionData };
 }
+interface regionData2 {
+  name: string;
+  count: number;
+}
+interface data {
+  [key: string]: regionData2;
+}
+
+interface mapData2 {
+  name: string;
+  count: number;
+  data: data;
+}
 
 function MapArea({
   map,
   mapSel,
   region,
   regionSel,
-  mdata,
+
   isClick,
   isClickF,
 }: {
@@ -195,98 +209,149 @@ function MapArea({
   mapSel: Function;
   region: string;
   regionSel: Function;
-  mdata: mapData;
+
   isClick: number;
   isClickF: Function;
 }) {
   let [check, checkF] = useState(-1);
+  let [data, dataF] = useState<mapData | null>(null);
+
+  function mapUpdate(map: string) {
+    return axios.get("http://localhost:4000/card/mapcount/" + map).then((x) => {
+      let data: mapData2 = x.data;
+      let sub: mapData = {
+        name: "",
+        count: 0,
+        data: {},
+        min: 100,
+        max: 0,
+      };
+      sub.name = map;
+      sub.count = data.count;
+      for (let i in data.data) {
+        let [count, rate] = [
+          data.data[i].count,
+          Number(((100 * data.data[i].count) / sub.count).toFixed(2)),
+        ];
+        if (rate > sub.max) {
+          sub.max = rate;
+        }
+        if (rate < sub.min) {
+          sub.min = rate;
+        }
+        sub.data[`${i}`] = {
+          name: i,
+          count: count,
+          rate: rate,
+          color: "",
+        };
+      }
+      let dx = (Math.log(sub.max) - Math.log(sub.min)) / 5;
+      for (let i in data.data) {
+        let rate = sub.data[`${i}`].rate;
+        let k = 5 - Math.floor((Math.log(rate) - Math.log(sub.min)) / dx);
+        k = k < 0 ? 0 : k;
+        sub.data[`${i}`].color = colorSet[k];
+      }
+      dataF(sub);
+    });
+  }
+  if (data === null) {
+    mapUpdate(map);
+  }
 
   return (
     <Frame>
-      <InnerFrame>
-        <ButtonArea>
-          <ButtonBox>
-            <Button
-              direc={"L"}
-              check={map === "전국"}
-              onClick={() => {
-                if (isClick >= 0 && map !== "전국") {
-                  mapSel("전국");
-                  regionSel("");
-                  isClickF(-1);
-                } else if (isClick < 0) {
-                  mapSel("전국");
-                }
-              }}
-            >
-              전국
-            </Button>
+      {data !== null ? (
+        <InnerFrame>
+          <ButtonArea>
+            <ButtonBox>
+              <Button
+                direc={"L"}
+                check={map === "전국"}
+                onClick={() => {
+                  if (isClick >= 0 && map !== "전국") {
+                    mapSel("전국");
+                    regionSel("");
+                    isClickF(-1);
+                    dataF(null);
+                  } else if (isClick < 0) {
+                    mapSel("전국");
+                    dataF(null);
+                  }
+                }}
+              >
+                전국
+              </Button>
 
-            <Button
-              direc={"R"}
-              check={map === "서울"}
-              onClick={() => {
-                if (isClick >= 0 && map !== "서울") {
-                  mapSel("서울");
-                  regionSel("");
-                  isClickF(-1);
-                } else if (isClick < 0) {
-                  mapSel("서울");
-                }
-              }}
-            >
-              서울
-            </Button>
-          </ButtonBox>
-        </ButtonArea>
-        <MainArea>
-          <MapBox>
-            {region.length > 0 ? (
-              <SelRegionBox>
-                {region}
-                <br />
-                {`${mdata.data[region].count} 명`}
-                <br />
-                {`${mdata.data[region].rate}%`}
-              </SelRegionBox>
-            ) : (
-              <SelRegionBox>
-                {mdata.name}
-                <br />
-                {`${mdata.count} 명`}
-                <br />
-                {"100%"}
-              </SelRegionBox>
-            )}
-            {map === "전국" ? (
-              <Korea
-                width={"100%"}
-                height={"100%"}
-                newData={mdata}
-                selrf={regionSel}
-                isClick={isClick}
-                isClickF={isClickF}
-                check={check}
-                checkF={checkF}
-              ></Korea>
-            ) : (
-              <Seoul
-                width={"100%"}
-                height={"100%"}
-                newData={mdata}
-                selrf={regionSel}
-                isClick={isClick}
-                isClickF={isClickF}
-                check={check}
-                checkF={checkF}
-              ></Seoul>
-            )}
-          </MapBox>
-          <ColorBarBox>
-            <ColorBar></ColorBar>
-          </ColorBarBox>
-        </MainArea>
-      </InnerFrame>
+              <Button
+                direc={"R"}
+                check={map === "서울"}
+                onClick={() => {
+                  if (isClick >= 0 && map !== "서울") {
+                    mapSel("서울");
+                    regionSel("");
+                    isClickF(-1);
+                    dataF(null);
+                  } else if (isClick < 0) {
+                    mapSel("서울");
+                    dataF(null);
+                  }
+                }}
+              >
+                서울
+              </Button>
+            </ButtonBox>
+          </ButtonArea>
+          <MainArea>
+            <MapBox>
+              {region.length > 0 ? (
+                <SelRegionBox>
+                  {region}
+                  <br />
+                  {`${data.data[region].count} 명`}
+                  <br />
+                  {`${data.data[region].rate}%`}
+                </SelRegionBox>
+              ) : (
+                <SelRegionBox>
+                  {data.name}
+                  <br />
+                  {`${data.count} 명`}
+                  <br />
+                  {"100%"}
+                </SelRegionBox>
+              )}
+              {map === "전국" ? (
+                <Korea
+                  width={"100%"}
+                  height={"100%"}
+                  newData={data}
+                  selrf={regionSel}
+                  isClick={isClick}
+                  isClickF={isClickF}
+                  check={check}
+                  checkF={checkF}
+                ></Korea>
+              ) : (
+                <Seoul
+                  width={"100%"}
+                  height={"100%"}
+                  newData={data}
+                  selrf={regionSel}
+                  isClick={isClick}
+                  isClickF={isClickF}
+                  check={check}
+                  checkF={checkF}
+                ></Seoul>
+              )}
+            </MapBox>
+            <ColorBarBox>
+              <ColorBar></ColorBar>
+            </ColorBarBox>
+          </MainArea>
+        </InnerFrame>
+      ) : null}
     </Frame>
   );
 }

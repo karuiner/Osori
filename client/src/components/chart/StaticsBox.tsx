@@ -45,26 +45,10 @@ const StaticalFigureWrapper = styled.div`
 `;
 
 const StaticalFigure = styled.div``;
-interface ResProps {
-  all_count?: number;
-  all_response_rate_po?: string;
-  all_response_rate_na?: string;
-  all_response_rate_nu?: string;
-  male_count_all?: number;
-  male_count_po?: number;
-  male_count_na?: number;
-  male_count_nu?: number;
-  female_count_all?: number;
-  female_count_po?: number;
-  female_count_na?: number;
-  female_count_nu?: number;
-}
 
 function StaticsBox({
-  resData,
   newData,
 }: {
-  resData: ResProps;
   newData: {
     female: number;
     male: number;

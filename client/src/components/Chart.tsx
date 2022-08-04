@@ -27,21 +27,6 @@ const StatsArea = styled.div`
   height: 70%;
 `;
 
-interface ResProps {
-  all_count?: number;
-  all_response_rate_po?: string;
-  all_response_rate_na?: string;
-  all_response_rate_nu?: string;
-  male_count_all?: number;
-  male_count_po?: number;
-  male_count_na?: number;
-  male_count_nu?: number;
-  female_count_all?: number;
-  female_count_po?: number;
-  female_count_na?: number;
-  female_count_nu?: number;
-}
-
 interface answer {
   yes: number;
   no: number;
@@ -53,29 +38,45 @@ interface gender {
   answer: answer;
   age: age;
 }
-
 interface age {
   count: number;
   [key: string]: number;
 }
-
-interface subData {
+interface regionData {
   name: string;
   count: number;
   male: gender;
   female: gender;
 }
 
-function Chart({ region, mdata }: { region: string; mdata: subData }) {
-  const [responseData, setResponseData] = useState<ResProps>({});
+function Chart({ region }: { region: string }) {
+  const [responseData, setResponseData] = useState<regionData>({
+    name: region,
+    count: 0,
+    male: { count: 0, answer: { yes: 0, no: 0, so: 0 }, age: { count: 0 } },
+    female: {
+      count: 0,
+      answer: { yes: 0, no: 0, so: 0 },
+      age: { count: 0 },
+    },
+  });
+  const [isget, isgetset] = useState(false);
+
+  if (!isget) {
+    axios.get("http://localhost:4000/card/region/" + region).then((x) => {
+      console.log(x.data);
+      setResponseData(x.data);
+      isgetset(true);
+    });
+  }
 
   let data1 = {
-    total: mdata.count,
-    yes: mdata.female.answer.yes + mdata.male.answer.yes,
-    no: mdata.female.answer.no + mdata.male.answer.no,
-    so: mdata.female.answer.so + mdata.male.answer.so,
+    total: responseData.count,
+    yes: responseData.female.answer.yes + responseData.male.answer.yes,
+    no: responseData.female.answer.no + responseData.male.answer.no,
+    so: responseData.female.answer.so + responseData.male.answer.so,
   };
-  let fage = mdata.female.age;
+  let fage = responseData.female.age;
   let femax = 0,
     felabel = "";
   for (let i in fage) {
@@ -86,7 +87,7 @@ function Chart({ region, mdata }: { region: string; mdata: subData }) {
       }
     }
   }
-  let mage = mdata.male.age;
+  let mage = responseData.male.age;
   let memax = 0,
     melabel = "";
   for (let i in mage) {
@@ -98,8 +99,8 @@ function Chart({ region, mdata }: { region: string; mdata: subData }) {
     }
   }
   let data2 = {
-    female: mdata.female.count,
-    male: mdata.male.count,
+    female: responseData.female.count,
+    male: responseData.male.count,
     femaxc: femax,
     femaxl: felabel,
     memaxc: memax,
@@ -108,12 +109,16 @@ function Chart({ region, mdata }: { region: string; mdata: subData }) {
 
   return (
     <ChartWrapper>
-      <StaticsTitle>{`${region} 전체 통계 요약`}</StaticsTitle>
-      <StaticsBox resData={responseData} newData={data2} />
-      <StatsArea>
-        <OverallResponseRate statData={data1} />
-        <GenderResponseRate statData={mdata} />
-      </StatsArea>
+      {responseData !== null ? (
+        <>
+          <StaticsTitle>{`${region} 전체 통계 요약`}</StaticsTitle>
+          <StaticsBox newData={data2} />
+          <StatsArea>
+            <OverallResponseRate statData={data1} />
+            <GenderResponseRate statData={responseData} />
+          </StatsArea>
+        </>
+      ) : null}
     </ChartWrapper>
   );
 }

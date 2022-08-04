@@ -31,16 +31,19 @@ interface answer {
 interface gender {
   count: number;
   answer: answer;
+  age: age;
 }
-
-interface subData {
+interface age {
+  count: number;
+  [key: string]: number;
+}
+interface regionData {
   name: string;
   count: number;
   male: gender;
   female: gender;
 }
-
-function GenderResponseRate({ statData }: { statData: subData }) {
+function GenderResponseRate({ statData }: { statData: regionData }) {
   const legend = [
     { name: "네", symbol: { fill: "#9749B6" } },
     { name: "글쎄요", symbol: { fill: "#C1ADD1" } },
@@ -100,7 +103,7 @@ function GenderResponseRate({ statData }: { statData: subData }) {
         <VictoryPie
           name="여성"
           standalone={false}
-          animate={{ easing: "exp", duration: 700 }}
+          animate={{ easing: "exp", duration: 2000 }}
           radius={40}
           innerRadius={60}
           origin={{ x: 150, y: 165 }}

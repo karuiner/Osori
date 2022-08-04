@@ -184,7 +184,7 @@ function StaticPage() {
         {region.length === 0 || isClick < 0 ? (
           <Waiting />
         ) : (
-          <Chart region={region} mdata={dbinit[map].odata[region]} />
+          <Chart region={region} />
         )}
       </Box>
       <Box>
@@ -193,7 +193,6 @@ function StaticPage() {
           mapSel={mapSel}
           region={region}
           regionSel={regionSel}
-          mdata={dbinit[map]}
           isClick={isClick}
           isClickF={isClickF}
         ></MapArea>
