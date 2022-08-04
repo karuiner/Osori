@@ -183,17 +183,8 @@ interface mapData {
   data: { [regionName: string]: regionData };
 }
 interface regionData2 {
-  name: string;
+  regionName: string;
   count: number;
-}
-interface data {
-  [key: string]: regionData2;
-}
-
-interface mapData2 {
-  name: string;
-  count: number;
-  data: data;
 }
 
 function MapArea({
@@ -215,10 +206,9 @@ function MapArea({
 }) {
   let [check, checkF] = useState(-1);
   let [data, dataF] = useState<mapData | null>(null);
-
   function mapUpdate(map: string) {
-    return axios.get("http://localhost:4000/card/mapcount/" + map).then((x) => {
-      let data: mapData2 = x.data;
+    return axios.get("http://localhost:4000/card/mapdata/" + map).then((x) => {
+      let data: regionData2[] = x.data;
       let sub: mapData = {
         name: "",
         count: 0,
@@ -227,11 +217,11 @@ function MapArea({
         max: 0,
       };
       sub.name = map;
-      sub.count = data.count;
-      for (let i in data.data) {
-        let [count, rate] = [
-          data.data[i].count,
-          Number(((100 * data.data[i].count) / sub.count).toFixed(2)),
+      sub.count = data.reduce((acc, x) => acc + x.count, 0);
+      for (let { regionName, count } of data) {
+        let [scount, rate] = [
+          count,
+          Number(((100 * count) / sub.count).toFixed(2)),
         ];
         if (rate > sub.max) {
           sub.max = rate;
@@ -239,20 +229,21 @@ function MapArea({
         if (rate < sub.min) {
           sub.min = rate;
         }
-        sub.data[`${i}`] = {
-          name: i,
-          count: count,
+        sub.data[`${regionName}`] = {
+          name: regionName,
+          count: scount,
           rate: rate,
           color: "",
         };
       }
       let dx = (Math.log(sub.max) - Math.log(sub.min)) / 5;
-      for (let i in data.data) {
-        let rate = sub.data[`${i}`].rate;
+      for (let { regionName } of data) {
+        let rate = sub.data[`${regionName}`].rate;
         let k = 5 - Math.floor((Math.log(rate) - Math.log(sub.min)) / dx);
         k = k < 0 ? 0 : k;
-        sub.data[`${i}`].color = colorSet[k];
+        sub.data[`${regionName}`].color = colorSet[k];
       }
+
       dataF(sub);
     });
   }
@@ -271,13 +262,19 @@ function MapArea({
                 check={map === "전국"}
                 onClick={() => {
                   if (isClick >= 0 && map !== "전국") {
-                    mapSel("전국");
-                    regionSel("");
-                    isClickF(-1);
-                    dataF(null);
+                    mapUpdate("전국").then((x) => {
+                      mapSel("전국");
+                      regionSel("");
+                      isClickF(-1);
+                    });
+
+                    // dataF(null);
                   } else if (isClick < 0) {
-                    mapSel("전국");
-                    dataF(null);
+                    mapUpdate("전국").then((x) => {
+                      mapSel("전국");
+                    });
+                    // mapSel("전국");
+                    // dataF(null);
                   }
                 }}
               >
@@ -286,16 +283,22 @@ function MapArea({
 
               <Button
                 direc={"R"}
-                check={map === "서울"}
+                check={map === "서울특별시"}
                 onClick={() => {
                   if (isClick >= 0 && map !== "서울") {
-                    mapSel("서울");
-                    regionSel("");
-                    isClickF(-1);
-                    dataF(null);
+                    mapUpdate("서울특별시").then((x) => {
+                      mapSel("서울특별시");
+                      regionSel("");
+                      isClickF(-1);
+                    });
+
+                    // dataF(null);
                   } else if (isClick < 0) {
-                    mapSel("서울");
-                    dataF(null);
+                    mapUpdate("서울특별시").then((x) => {
+                      mapSel("서울특별시");
+                    });
+                    // mapSel("서울특별시");
+                    // dataF(null);
                   }
                 }}
               >

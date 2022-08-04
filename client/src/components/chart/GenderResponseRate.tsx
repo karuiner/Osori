@@ -5,12 +5,13 @@ import {
   VictoryLegend,
   VictoryLabel,
   VictoryTooltip,
+  VictoryAnimation,
 } from "victory";
 
 const Svg = styled.svg``;
 
 //---- code ----
-const defaultGraphicData = [{ y: 0 }, { y: 0 }, { y: 100 }];
+
 const MaleResponseData = [
   { x: "46%", y: 46 },
   { x: "22%", y: 22 },
@@ -22,19 +23,14 @@ const FemaleResponseData = [
   { x: "35%", y: 35 },
 ];
 
-interface answer {
+interface gender {
+  count: number;
   yes: number;
   no: number;
   so: number;
-}
-
-interface gender {
-  count: number;
-  answer: answer;
   age: age;
 }
 interface age {
-  count: number;
   [key: string]: number;
 }
 interface regionData {
@@ -43,52 +39,40 @@ interface regionData {
   male: gender;
   female: gender;
 }
-function GenderResponseRate({ statData }: { statData: regionData }) {
+
+interface subdata {
+  x: string;
+  y: number;
+}
+
+interface data {
+  male: subdata[];
+  female: subdata[];
+  total: number;
+}
+const defaultGraphicData = [
+  { x: "", y: 0 },
+  { x: "", y: 0 },
+  { x: "", y: 100 },
+];
+
+function GenderResponseRate({ statData }: { statData: data }) {
   const legend = [
     { name: "네", symbol: { fill: "#9749B6" } },
     { name: "글쎄요", symbol: { fill: "#C1ADD1" } },
-    { name: "아니오", symbol: { fill: "#EEA3BF" } },
+    { name: "아니요", symbol: { fill: "#EEA3BF" } },
   ];
 
   // 그래프 애니메이션
-  const [maleResponseRate, setMaleResponseRate] =
-    useState<{ [key: string]: number | string }[]>(defaultGraphicData);
-  const [femaleResponseRate, setFemaleResponseRate] =
-    useState<{ [key: string]: number | string }[]>(defaultGraphicData);
-  const [count, countF] = useState(0);
+  const [data, setdata] = useState({
+    male: defaultGraphicData,
+    female: defaultGraphicData,
+    total: 0,
+  });
+
   useEffect(() => {
-    let yes =
-        ((100 * statData.male.answer.yes) / statData.male.count).toFixed(2) +
-        "%",
-      no =
-        ((100 * statData.male.answer.no) / statData.male.count).toFixed(2) +
-        "%",
-      so =
-        ((100 * statData.male.answer.so) / statData.male.count).toFixed(2) +
-        "%";
-
-    setMaleResponseRate([
-      { x: yes, y: statData.male.answer.yes },
-      { x: so, y: statData.male.answer.so },
-      { x: no, y: statData.male.answer.no },
-    ]);
-
-    yes =
-      ((100 * statData.female.answer.yes) / statData.female.count).toFixed(2) +
-      "%";
-    no =
-      ((100 * statData.female.answer.no) / statData.female.count).toFixed(2) +
-      "%";
-    so =
-      ((100 * statData.female.answer.so) / statData.female.count).toFixed(2) +
-      "%";
-    setFemaleResponseRate([
-      { x: yes, y: statData.female.answer.yes },
-      { x: so, y: statData.female.answer.so },
-      { x: no, y: statData.female.answer.no },
-    ]);
-    countF(statData.count);
-  }, [maleResponseRate, femaleResponseRate, count]);
+    setdata(statData);
+  }, [data]);
 
   return (
     <>
@@ -98,18 +82,18 @@ function GenderResponseRate({ statData }: { statData: regionData }) {
           style={{ fontSize: 16 }}
           x={150}
           y={165}
-          text={`${count} 명`}
+          text={`${statData.total} 명`}
         />
+
         <VictoryPie
           name="여성"
           standalone={false}
-          animate={{ easing: "exp", duration: 2000 }}
           radius={40}
           innerRadius={60}
           origin={{ x: 150, y: 165 }}
           colorScale={["#9749B6", "#C1ADD1", "#EEA3BF"]}
           padAngle={1}
-          data={femaleResponseRate}
+          data={statData.female}
           labelComponent={
             <VictoryTooltip
               center={{ x: 150, y: 165 }}
@@ -126,12 +110,7 @@ function GenderResponseRate({ statData }: { statData: regionData }) {
         <VictoryPie
           name="남성"
           standalone={false}
-          animate={{
-            easing: "exp",
-            duration: 5000,
-            onEnter: { duration: 5000 },
-          }}
-          data={maleResponseRate}
+          data={statData.male}
           radius={70}
           innerRadius={90}
           origin={{ x: 150, y: 165 }}

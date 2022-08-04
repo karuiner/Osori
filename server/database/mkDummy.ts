@@ -301,7 +301,7 @@ async function test() {
             region.male.count++;
             if (answer === '네') {
               region.male.yes++;
-            } else if (answer === '아니오') {
+            } else if (answer === '아니요') {
               region.male.no++;
             } else {
               region.male.so++;
@@ -323,7 +323,7 @@ async function test() {
             region.female.count++;
             if (answer === '네') {
               region.female.yes++;
-            } else if (answer === '아니오') {
+            } else if (answer === '아니요') {
               region.female.no++;
             } else {
               region.female.so++;
@@ -350,7 +350,7 @@ async function test() {
           if (map === null) {
             map = await new Static({
               issueId: issue_id,
-              mapName: '지구',
+              mapName: mapName === '전국' ? '지구' : '전국',
               regionName: mapName,
             });
             map = await map.save();
@@ -360,10 +360,10 @@ async function test() {
             map.male.count++;
             if (answer === '네') {
               map.male.yes++;
-            } else if (answer === '아니오') {
-              map.male.no++;
-            } else {
+            } else if (answer === '글세요') {
               map.male.so++;
+            } else {
+              map.male.no++;
             }
             if (age === '10대') {
               map.male.age['10대']++;
@@ -382,10 +382,10 @@ async function test() {
             map.female.count++;
             if (answer === '네') {
               map.female.yes++;
-            } else if (answer === '아니오') {
-              map.female.no++;
-            } else {
+            } else if (answer === '아니요') {
               map.female.so++;
+            } else {
+              map.female.no++;
             }
             if (age === '10대') {
               map.female.age['10대']++;

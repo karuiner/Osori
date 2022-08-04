@@ -27,19 +27,14 @@ const StatsArea = styled.div`
   height: 70%;
 `;
 
-interface answer {
+interface gender {
+  count: number;
   yes: number;
   no: number;
   so: number;
-}
-
-interface gender {
-  count: number;
-  answer: answer;
   age: age;
 }
 interface age {
-  count: number;
   [key: string]: number;
 }
 interface regionData {
@@ -49,76 +44,117 @@ interface regionData {
   female: gender;
 }
 
-function Chart({ region }: { region: string }) {
-  const [responseData, setResponseData] = useState<regionData>({
-    name: region,
-    count: 0,
-    male: { count: 0, answer: { yes: 0, no: 0, so: 0 }, age: { count: 0 } },
-    female: {
-      count: 0,
-      answer: { yes: 0, no: 0, so: 0 },
-      age: { count: 0 },
-    },
-  });
-  const [isget, isgetset] = useState(false);
+interface data1 {
+  total: number;
+  yes: number;
+  no: number;
+  so: number;
+}
+interface data2 {
+  female: number;
+  male: number;
+  femaxc: number;
+  femaxl: string;
+  memaxc: number;
+  memaxl: string;
+}
+interface subdata {
+  x: string;
+  y: number;
+}
 
-  if (!isget) {
-    axios.get("http://localhost:4000/card/region/" + region).then((x) => {
-      console.log(x.data);
-      setResponseData(x.data);
-      isgetset(true);
+interface data3 {
+  male: subdata[];
+  female: subdata[];
+  total: number;
+}
+interface staticData {
+  data1: data1;
+  data2: data2;
+  data3: data3;
+}
+
+function Chart({ region }: { region: string }) {
+  const [responseData, setResponseData] = useState<staticData>({
+    data1: { total: 0, yes: 0, no: 0, so: 0 },
+    data2: { female: 0, male: 0, femaxc: 0, femaxl: "", memaxc: 0, memaxl: "" },
+    data3: { male: [], female: [], total: 0 },
+  });
+  const [isget, isgetset] = useState("");
+
+  if (isget !== region) {
+    axios.get("http://localhost:4000/card/regiondata/" + region).then((x) => {
+      let data = x.data[0];
+
+      let data1 = {
+        total: data.count,
+        yes: data.female.yes + data.male.yes,
+        no: data.female.no + data.male.no,
+        so: data.female.so + data.male.so,
+      };
+      let fage = data.female.age;
+      let femax = 0,
+        felabel = "";
+      let mage = data.male.age;
+      let memax = 0,
+        melabel = "";
+      for (let i in fage) {
+        if (i !== "count") {
+          if (fage[i] > femax) {
+            femax = fage[i];
+            felabel = i;
+          }
+          if (mage[i] > memax) {
+            memax = mage[i];
+            melabel = i;
+          }
+        }
+      }
+
+      let data2 = {
+        female: data.female.count,
+        male: data.male.count,
+        femaxc: femax,
+        femaxl: felabel,
+        memaxc: memax,
+        memaxl: melabel,
+      };
+
+      let yes = ((100 * data.male.yes) / data.male.count).toFixed(2) + "%",
+        no = ((100 * data.male.no) / data.male.count).toFixed(2) + "%",
+        so = ((100 * data.male.so) / data.male.count).toFixed(2) + "%";
+
+      yes = ((100 * data.female.yes) / data.female.count).toFixed(2) + "%";
+      no = ((100 * data.female.no) / data.female.count).toFixed(2) + "%";
+      so = ((100 * data.female.so) / data.female.count).toFixed(2) + "%";
+
+      let data3 = {
+        male: [
+          { x: yes, y: data.male.yes },
+          { x: so, y: data.male.so },
+          { x: no, y: data.male.no },
+        ],
+        female: [
+          { x: yes, y: data.female.yes },
+          { x: so, y: data.female.so },
+          { x: no, y: data.female.no },
+        ],
+        total: data.count,
+      };
+
+      setResponseData({ data1: data1, data2: data2, data3: data3 });
+      isgetset(region);
     });
   }
 
-  let data1 = {
-    total: responseData.count,
-    yes: responseData.female.answer.yes + responseData.male.answer.yes,
-    no: responseData.female.answer.no + responseData.male.answer.no,
-    so: responseData.female.answer.so + responseData.male.answer.so,
-  };
-  let fage = responseData.female.age;
-  let femax = 0,
-    felabel = "";
-  for (let i in fage) {
-    if (i !== "count") {
-      if (fage[i] > femax) {
-        femax = fage[i];
-        felabel = i;
-      }
-    }
-  }
-  let mage = responseData.male.age;
-  let memax = 0,
-    melabel = "";
-  for (let i in mage) {
-    if (i !== "count") {
-      if (mage[i] > memax) {
-        memax = mage[i];
-        melabel = i;
-      }
-    }
-  }
-  let data2 = {
-    female: responseData.female.count,
-    male: responseData.male.count,
-    femaxc: femax,
-    femaxl: felabel,
-    memaxc: memax,
-    memaxl: melabel,
-  };
-
   return (
     <ChartWrapper>
-      {responseData !== null ? (
-        <>
-          <StaticsTitle>{`${region} 전체 통계 요약`}</StaticsTitle>
-          <StaticsBox newData={data2} />
-          <StatsArea>
-            <OverallResponseRate statData={data1} />
-            <GenderResponseRate statData={responseData} />
-          </StatsArea>
-        </>
-      ) : null}
+      <StaticsTitle>{`${region} 전체 통계 요약`}</StaticsTitle>
+      <StaticsBox newData={responseData.data2} />
+      <StatsArea>
+        <OverallResponseRate statData={responseData.data1} />
+        <GenderResponseRate statData={responseData.data3} />
+      </StatsArea>
     </ChartWrapper>
   );
 }

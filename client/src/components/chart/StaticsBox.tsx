@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 const BoxWrapper = styled.div`
@@ -46,6 +46,15 @@ const StaticalFigureWrapper = styled.div`
 
 const StaticalFigure = styled.div``;
 
+interface data {
+  female: number;
+  male: number;
+  femaxc: number;
+  femaxl: string;
+  memaxc: number;
+  memaxl: string;
+}
+
 function StaticsBox({
   newData,
 }: {
@@ -58,11 +67,13 @@ function StaticsBox({
     memaxl: string;
   };
 }) {
-  const [maleResponse, setMaleResponse] = useState(0);
-  const [femaleResponse, setFemaleResponse] = useState(0);
-  const [highestMaleResponseAge, setHighestMaleResponseAge] = useState("");
-  const [highestFemaleResponseAge, setHighestFemaleResponseAge] = useState("");
-
+  // const [maleResponse, setMaleResponse] = useState(0);
+  // const [femaleResponse, setFemaleResponse] = useState(0);
+  // const [highestMaleResponseAge, setHighestMaleResponseAge] = useState("");
+  // const [data, setdata] = useState<data>(newData);
+  // useEffect(() => {
+  //   setdata(newData);
+  // }, [newData]);
   return (
     <BoxWrapper>
       <StaticalNameWrapper>

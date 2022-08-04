@@ -10,7 +10,7 @@ import {
 const Svg = styled.svg``;
 
 //---- code ----
-const defaultGraphicData = [{ y: 0 }, { y: 0 }, { y: 100 }];
+
 const overallResponseData = [
   { x: "46%", y: 46 },
   { x: "22%", y: 22 },
@@ -25,9 +25,13 @@ function OverallResponseRate({
   const legend = [
     { name: "네", symbol: { fill: "#9749B6" } },
     { name: "글쎄요", symbol: { fill: "#C1ADD1" } },
-    { name: "아니오", symbol: { fill: "#EEA3BF" } },
+    { name: "아니요", symbol: { fill: "#EEA3BF" } },
   ];
-
+  const defaultGraphicData = [
+    { x: "", y: 0 },
+    { x: "", y: 0 },
+    { x: "", y: 100 },
+  ];
   // 그래프 애니메이션
   const [overallResponse, setOverallResponse] =
     useState<{ [key: string]: number | string }[]>(defaultGraphicData);
@@ -57,11 +61,6 @@ function OverallResponseRate({
         />
         <VictoryPie
           standalone={false}
-          animate={{
-            easing: "exp",
-            duration: 1000,
-            // onLoad: { duration: 1000 },
-          }}
           radius={60}
           innerRadius={90}
           origin={{ x: 150, y: 160 }}
