@@ -8,6 +8,8 @@ import { User } from 'src/schema/user.schema';
 import { Answer, answer_Schema } from 'src/schema/answer.schema';
 import { Issue } from 'src/schema/issue.schema';
 import { regionData, mapData } from 'src/interface/mapdata';
+import { Static } from 'src/schema/static.schema';
+import randomPick from 'etc/randomPick';
 
 @Injectable()
 export class CardService {
@@ -16,6 +18,7 @@ export class CardService {
     @InjectModel(Answer.name)
     private readonly answerModel: Model<Answer>,
     @InjectModel(Issue.name) private readonly issueModel: Model<Issue>,
+    @InjectModel(Static.name) private readonly staticModel: Model<Static>,
   ) {}
 
   mk_region_data(data, region) {
@@ -224,6 +227,20 @@ export class CardService {
     }
   }
 
+  async getmapdata(id: string) {
+    let arr = await this.staticModel
+      .find({ mapName: new RegExp(id) })
+      .select({ count: 1, regionName: 1 });
+
+    return arr;
+  }
+
+  async getregiondata(id: string) {
+    let arr = await this.staticModel.find({ regionName: new RegExp(id) });
+
+    return arr;
+  }
+
   getmap_test(id: string, response) {
     this.userModel
       .find({
@@ -235,5 +252,129 @@ export class CardService {
         // response.send(arr);
         response.send(this.mk_map_data(arr, id));
       });
+  }
+
+  async getdata() {
+    let { gender, answer, age, address } = randomPick(1)[0];
+    let addNames = address.split(' '),
+      mapName = '',
+      regionName = '';
+    console.log(addNames);
+    if (addNames.length > 1) {
+      [mapName, regionName] = addNames;
+    } else {
+      [mapName, regionName] = ['전국', addNames[0]];
+    }
+    let region = await this.staticModel.findOne({ regionName: regionName });
+    if (region === null) {
+      region = await new this.staticModel({
+        mapName: mapName,
+        regionName: regionName,
+      });
+      region = await region.save();
+    }
+    region.count++;
+    if (gender === '남') {
+      region.male.count++;
+      if (answer === '네') {
+        region.male.yes++;
+      } else if (answer === '아니오') {
+        region.male.no++;
+      } else {
+        region.male.so++;
+      }
+      if (age === '10대') {
+        region.male.age['10대']++;
+      } else if (age === '20대') {
+        region.male.age['20대']++;
+      } else if (age === '30대') {
+        region.male.age['30대']++;
+      } else if (age === '40대') {
+        region.male.age['40대']++;
+      } else if (age === '50대') {
+        region.male.age['50대']++;
+      } else {
+        region.male.age['60대이상']++;
+      }
+    } else {
+      region.female.count++;
+      if (answer === '네') {
+        region.female.yes++;
+      } else if (answer === '아니오') {
+        region.female.no++;
+      } else {
+        region.female.so++;
+      }
+      if (age === '10대') {
+        region.female.age['10대']++;
+      } else if (age === '20대') {
+        region.female.age['20대']++;
+      } else if (age === '30대') {
+        region.female.age['30대']++;
+      } else if (age === '40대') {
+        region.female.age['40대']++;
+      } else if (age === '50대') {
+        region.female.age['50대']++;
+      } else {
+        region.female.age['60대이상']++;
+      }
+    }
+    region = await region.save();
+    let map = await this.staticModel.findOne({ regionName: mapName });
+    if (map === null) {
+      map = await new this.staticModel({
+        mapName: '지구',
+        regionName: mapName,
+      });
+      map = await map.save();
+    }
+    map.count++;
+    if (gender === '남') {
+      map.male.count++;
+      if (answer === '네') {
+        map.male.yes++;
+      } else if (answer === '아니오') {
+        map.male.no++;
+      } else {
+        map.male.so++;
+      }
+      if (age === '10대') {
+        map.male.age['10대']++;
+      } else if (age === '20대') {
+        map.male.age['20대']++;
+      } else if (age === '30대') {
+        map.male.age['30대']++;
+      } else if (age === '40대') {
+        map.male.age['40대']++;
+      } else if (age === '50대') {
+        map.male.age['50대']++;
+      } else {
+        map.male.age['60대이상']++;
+      }
+    } else {
+      map.female.count++;
+      if (answer === '네') {
+        map.female.yes++;
+      } else if (answer === '아니오') {
+        map.female.no++;
+      } else {
+        map.female.so++;
+      }
+      if (age === '10대') {
+        map.female.age['10대']++;
+      } else if (age === '20대') {
+        map.female.age['20대']++;
+      } else if (age === '30대') {
+        map.female.age['30대']++;
+      } else if (age === '40대') {
+        map.female.age['40대']++;
+      } else if (age === '50대') {
+        map.female.age['50대']++;
+      } else {
+        map.female.age['60대이상']++;
+      }
+    }
+    map = await map.save();
+    return [region, map];
   }
 }

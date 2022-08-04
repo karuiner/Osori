@@ -57,7 +57,11 @@ function OverallResponseRate({
         />
         <VictoryPie
           standalone={false}
-          animate={{ easing: "exp", duration: 500 }}
+          animate={{
+            easing: "exp",
+            duration: 1000,
+            // onLoad: { duration: 1000 },
+          }}
           radius={60}
           innerRadius={90}
           origin={{ x: 150, y: 160 }}
