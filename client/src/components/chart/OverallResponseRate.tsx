@@ -47,29 +47,32 @@ function OverallResponseRate({
   }>(defaultGraphicData);
 
   useEffect(() => {
-    if (icount === 0) {
+    console.log("in");
+
+    setOverallResponse({
+      count: icount,
+      total: statData.total,
+      data: [
+        {
+          x: ((100 * statData.yes) / statData.total).toFixed(2) + "%",
+          y: statData.yes,
+        },
+        {
+          x: ((100 * statData.so) / statData.total).toFixed(2) + "%",
+          y: statData.so,
+        },
+        {
+          x: ((100 * statData.no) / statData.total).toFixed(2) + "%",
+          y: statData.no,
+        },
+      ],
+    });
+
+    return function cleanup() {
+      console.log("when use");
       setOverallResponse(defaultGraphicData);
-      setcount(1);
-    } else {
-      setOverallResponse({
-        count: icount,
-        total: statData.total,
-        data: [
-          {
-            x: ((100 * statData.yes) / statData.total).toFixed(2) + "%",
-            y: statData.yes,
-          },
-          {
-            x: ((100 * statData.so) / statData.total).toFixed(2) + "%",
-            y: statData.so,
-          },
-          {
-            x: ((100 * statData.no) / statData.total).toFixed(2) + "%",
-            y: statData.no,
-          },
-        ],
-      });
-    }
+      setcount(0);
+    };
   }, [statData]);
 
   return (
