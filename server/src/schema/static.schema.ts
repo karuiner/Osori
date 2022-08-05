@@ -19,14 +19,14 @@ export class Static extends Document {
     default: '',
   })
   @IsString()
-  mapName: String;
+  mapName: string;
 
   @Prop({
     required: true,
     default: '',
   })
   @IsString()
-  regionName: String;
+  regionName: string;
 
   @Prop({
     required: true,

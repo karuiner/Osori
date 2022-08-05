@@ -152,8 +152,8 @@ function Chart({ region }: { region: string }) {
       <StaticsTitle>{`${region} 전체 통계 요약`}</StaticsTitle>
       <StaticsBox newData={responseData.data2} />
       <StatsArea>
-        <OverallResponseRate statData={responseData.data1} />
-        <GenderResponseRate statData={responseData.data3} />
+        <OverallResponseRate count={0} statData={responseData.data1} />
+        <GenderResponseRate count={0} statData={responseData.data3} />
       </StatsArea>
     </ChartWrapper>
   );

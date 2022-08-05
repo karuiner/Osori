@@ -10,7 +10,15 @@ import {
 const Svg = styled.svg``;
 
 //---- code ----
-
+const defaultGraphicData = {
+  count: 0,
+  total: 0,
+  data: [
+    { x: "", y: 0 },
+    { x: "", y: 0 },
+    { x: "", y: 100 },
+  ],
+};
 const overallResponseData = [
   { x: "46%", y: 46 },
   { x: "22%", y: 22 },
@@ -19,35 +27,50 @@ const overallResponseData = [
 
 function OverallResponseRate({
   statData,
+  count,
 }: {
   statData: { total: number; yes: number; no: number; so: number };
+  count: number;
 }) {
   const legend = [
     { name: "네", symbol: { fill: "#9749B6" } },
     { name: "글쎄요", symbol: { fill: "#C1ADD1" } },
     { name: "아니요", symbol: { fill: "#EEA3BF" } },
   ];
-  const defaultGraphicData = [
-    { x: "", y: 0 },
-    { x: "", y: 0 },
-    { x: "", y: 100 },
-  ];
-  // 그래프 애니메이션
-  const [overallResponse, setOverallResponse] =
-    useState<{ [key: string]: number | string }[]>(defaultGraphicData);
-  const [count, countF] = useState(0);
-  useEffect(() => {
-    let yes = ((100 * statData.yes) / statData.total).toFixed(2) + "%",
-      no = ((100 * statData.no) / statData.total).toFixed(2) + "%",
-      so = ((100 * statData.so) / statData.total).toFixed(2) + "%";
 
-    setOverallResponse([
-      { x: yes, y: statData.yes },
-      { x: so, y: statData.so },
-      { x: no, y: statData.no },
-    ]);
-    countF(statData.total);
-  }, [overallResponse, count]);
+  // 그래프 애니메이션
+  const [icount, setcount] = useState(count);
+  const [overallResponse, setOverallResponse] = useState<{
+    count: number;
+    total: number;
+    data: { [key: string]: number | string }[];
+  }>(defaultGraphicData);
+
+  useEffect(() => {
+    if (icount === 0) {
+      setOverallResponse(defaultGraphicData);
+      setcount(1);
+    } else {
+      setOverallResponse({
+        count: icount,
+        total: statData.total,
+        data: [
+          {
+            x: ((100 * statData.yes) / statData.total).toFixed(2) + "%",
+            y: statData.yes,
+          },
+          {
+            x: ((100 * statData.so) / statData.total).toFixed(2) + "%",
+            y: statData.so,
+          },
+          {
+            x: ((100 * statData.no) / statData.total).toFixed(2) + "%",
+            y: statData.no,
+          },
+        ],
+      });
+    }
+  }, [statData]);
 
   return (
     <>
@@ -57,16 +80,21 @@ function OverallResponseRate({
           style={{ fontSize: 16 }}
           x={150}
           y={160}
-          text={`${count} 명`}
+          text={`${overallResponse.total} 명`}
         />
         <VictoryPie
+          animate={{
+            easing: "exp",
+            duration: 500,
+            onEnter: { duration: 500 },
+          }}
           standalone={false}
           radius={60}
           innerRadius={90}
           origin={{ x: 150, y: 160 }}
           colorScale={["#9749B6", "#C1ADD1", "#EEA3BF"]}
           padAngle={1}
-          data={overallResponse}
+          data={overallResponse.data}
           labelComponent={
             <VictoryTooltip
               center={{ x: 150, y: 160 }}
@@ -77,6 +105,7 @@ function OverallResponseRate({
               flyoutHeight={80}
               flyoutStyle={{ fill: "white", stroke: "none" }}
               style={{ fontSize: 16 }}
+              renderInPortal={false}
             />
           }
         />

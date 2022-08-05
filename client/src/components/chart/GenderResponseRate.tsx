@@ -56,13 +56,19 @@ const defaultGraphicData = [
   { x: "", y: 100 },
 ];
 
-function GenderResponseRate({ statData }: { statData: data }) {
+function GenderResponseRate({
+  count,
+  statData,
+}: {
+  count: number;
+  statData: data;
+}) {
   const legend = [
     { name: "네", symbol: { fill: "#9749B6" } },
     { name: "글쎄요", symbol: { fill: "#C1ADD1" } },
     { name: "아니요", symbol: { fill: "#EEA3BF" } },
   ];
-
+  const [icount, setcount] = useState(count);
   // 그래프 애니메이션
   const [data, setdata] = useState({
     male: defaultGraphicData,
@@ -71,8 +77,18 @@ function GenderResponseRate({ statData }: { statData: data }) {
   });
 
   useEffect(() => {
-    setdata(statData);
-  }, [data]);
+    if (icount === 0) {
+      setdata({
+        male: defaultGraphicData,
+        female: defaultGraphicData,
+        total: 0,
+      });
+      setcount(1);
+    } else {
+      setdata(statData);
+      setcount(0);
+    }
+  }, [statData]);
 
   return (
     <>
@@ -86,6 +102,11 @@ function GenderResponseRate({ statData }: { statData: data }) {
         />
 
         <VictoryPie
+          animate={{
+            easing: "exp",
+            duration: 500,
+            onEnter: { duration: 500 },
+          }}
           name="여성"
           standalone={false}
           radius={40}
@@ -104,10 +125,16 @@ function GenderResponseRate({ statData }: { statData: data }) {
               flyoutHeight={80}
               flyoutStyle={{ fill: "white", stroke: "none" }}
               style={{ fontSize: 16 }}
+              renderInPortal={false}
             />
           }
         />
         <VictoryPie
+          animate={{
+            easing: "exp",
+            duration: 500,
+            onEnter: { duration: 500 },
+          }}
           name="남성"
           standalone={false}
           data={statData.male}
@@ -128,6 +155,7 @@ function GenderResponseRate({ statData }: { statData: data }) {
               flyoutHeight={80}
               flyoutStyle={{ fill: "white", stroke: "none" }}
               style={{ fontSize: 16 }}
+              renderInPortal={false}
             />
           }
         />
