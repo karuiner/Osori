@@ -333,7 +333,7 @@ async function test() {
           if (map === null) {
             map = await new Stats({
               issueId: issue_id,
-              mapName: '지구',
+              mapName: mapName === '전국' ? '지구' : '전국',
               regionName: mapName,
             });
             map = await map.save();
