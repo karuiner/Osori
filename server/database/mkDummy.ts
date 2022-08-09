@@ -195,19 +195,23 @@ const Issue = model<Issue>('Issue', issueSchema);
 const Answer = model<Answer>('Answer', answerSchema);
 const Stats = model<Stats>('Stats', StatsSchema);
 const today = new Date().getFullYear();
-const startNumber = 0;
+let startNumber = 0;
 async function test() {
-  await Issue.collection.drop();
-  await User.collection.drop();
-  await Answer.collection.drop();
-  await Stats.collection.drop();
-  const issue1 = new Issue({
-    title: '뭐니뭐니해도 부먹이 최고시다.',
-    answerTextO: '맞아맞아 부먹이 최고지',
-    answerTextX: '아냐 찍먹이 최고야',
-    answerTextS: '부먹이나 찍먹보다는 처먹이 최고 아닐까?',
-  });
-  await issue1.save();
+  if (process.env.MONGODB_DUMMY_TYPE === 'new') {
+    await Issue.collection.drop();
+    await User.collection.drop();
+    await Answer.collection.drop();
+    await Stats.collection.drop();
+    const issue1 = new Issue({
+      title: '뭐니뭐니해도 부먹이 최고시다.',
+      answerTextO: '맞아맞아 부먹이 최고지',
+      answerTextX: '아냐 찍먹이 최고야',
+      answerTextS: '부먹이나 찍먹보다는 처먹이 최고 아닐까?',
+    });
+    await issue1.save();
+  } else {
+    startNumber = await User.countDocuments();
+  }
 
   const dataNumber = Number(process.env.DUMMYDATANUMER) || 10;
   const data = randomPick(dataNumber, startNumber);
